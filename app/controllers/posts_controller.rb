@@ -1,6 +1,5 @@
 class PostsController < ApplicationController
-  access_resources :users
-  access_resources :posts
+  access_resources :posts, :users
 
   def index
     posts

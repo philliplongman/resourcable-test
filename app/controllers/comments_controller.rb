@@ -1,7 +1,5 @@
 class CommentsController < ApplicationController
-  access_resources :users
-  access_resources :posts
-  access_resources :comments
+  access_resources :comments, :posts, :users
 
   def index
     comments

@@ -2,24 +2,28 @@ module Resourceable
 
   private
 
-  def access_resource(resource)
-    resource = resource.to_s.downcase.singularize
+  def access_resource(*resources)
+    resources.each { |e| define_access_methods e.to_s.downcase.singularize }
+  end
+  alias_method :access_resources, :access_resource
 
-    create_methods_for_singular_resources resource
-    create_shared_methods resource
+  def define_access_methods(resource)
+    if resource_singleton?
+      define_methods_for_singleton_resource(resource)
+    else
+      define_methods_for_standard_resource(resource)
+    end
+    define_shared_methods resource
   end
 
-  def access_resources(resource)
-    resource = resource.to_s.downcase.singularize
-
-    create_methods_for_plural_resources resource
-    create_shared_methods resource
+  def resource_singleton?
+    false
   end
 
-  def create_methods_for_singular_resources(resource)
+  def define_methods_for_singleton_resource(resource)
   end
 
-  def create_methods_for_plural_resources(resource)
+  def define_methods_for_standard_resource(resource)
     # find existing resource by id or return nil
     define_method "existing_#{resource}" do
       id = send "#{resource}_id_from_params"
@@ -39,7 +43,7 @@ module Resourceable
     end
   end
 
-  def create_shared_methods(resource)
+  def define_shared_methods(resource)
     # getter - collection
     define_method resource.pluralize  do
       instance_variable_get("@#{resource.pluralize}") ||
