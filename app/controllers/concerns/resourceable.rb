@@ -1,23 +1,59 @@
 module Resourceable
 
+  class Resource
+    attr_reader :name, :permitted_columns
+
+    def initialize(model)
+      if model.is_a? Hash
+        @name = model.keys.first.to_s.downcase.singularize
+        @permitted_columns = model.values.first
+      else
+        @name = model.to_s.downcase.singularize
+        @permitted_columns = nil
+      end
+    end
+
+    def to_s
+      name
+    end
+
+    def to_sym
+      name.to_sym
+    end
+
+    def pluralize
+      name.pluralize
+    end
+
+    def constantize
+      name.capitalize.constantize
+    end
+
+    def singleton?
+      false
+    end
+  end
+
   private
 
-  def access_resource(*resources)
-    resources.each { |e| define_access_methods e.to_s.downcase.singularize }
+  def access_resource(*args)
+    # Accepts a list models as symbols, strings, or constants. Args may also be
+    # the hash key to an array of columns to accept for strong params. Example:
+    #
+    #   :posts, :comments, users: [:name, :email, :password]
+    #
+    args.each { |arg| define_access_methods_for Resource.new(arg) }
   end
+
   alias_method :access_resources, :access_resource
 
-  def define_access_methods(resource)
-    if resource_singleton?
+  def define_access_methods_for(resource)
+    if resource.singleton?
       define_methods_for_singleton_resource(resource)
     else
       define_methods_for_standard_resource(resource)
     end
     define_shared_methods resource
-  end
-
-  def resource_singleton?
-    false
   end
 
   def define_methods_for_singleton_resource(resource)
@@ -27,12 +63,12 @@ module Resourceable
     # find existing resource by id or return nil
     define_method "existing_#{resource}" do
       id = send "#{resource}_id_from_params"
-      id.present? ? (resource.capitalize.constantize).find(id) : nil
+      id.present? ? resource.constantize.find(id) : nil
     end
 
     # new resource
     define_method "new_#{resource}" do
-      (resource.capitalize.constantize).new
+      resource.constantize.new
     end
 
     # find id for resource from params
@@ -48,12 +84,12 @@ module Resourceable
     define_method resource.pluralize  do
       instance_variable_get("@#{resource.pluralize}") ||
         instance_variable_set(
-          "@#{resource.pluralize}", (resource.capitalize.constantize).all
+          "@#{resource.pluralize}", resource.constantize.all
         )
     end
 
     # getter - single record
-    define_method resource do
+    define_method resource.name do
       instance_variable_get("@#{resource}") ||
         instance_variable_set("@#{resource}", send("load_#{resource}"))
     end
@@ -68,7 +104,7 @@ module Resourceable
     # define strong params for resource that don't allow anything,
     # to be overwritten in the context of each controller
     define_method "#{resource}_params" do
-      params.require(resource).permit()
+      params.require(resource.name).permit(resource.permitted_columns)
     end
   end
 

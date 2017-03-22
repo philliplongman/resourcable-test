@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  access_resource :users
+  access_resource users: [:name]
 
   def index
     users
@@ -32,9 +32,4 @@ class UsersController < ApplicationController
     respond_with user
   end
 
-  private
-
-  def user_params
-    params.require(:user).permit(:name)
-  end
 end
