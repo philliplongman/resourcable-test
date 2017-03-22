@@ -3,9 +3,9 @@ module Resourceable
     attr_reader :resource, :permitted_columns
 
     def initialize(resource, permitted_columns, params)
-      @resource = resource
+      @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
-      @permitted_columns = permitted_columns
+      @permitted_columns = permitted_columns.map(&:to_sym)
       @params = params
     end
 

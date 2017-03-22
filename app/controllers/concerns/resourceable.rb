@@ -4,28 +4,29 @@ module Resourceable
 
   private
 
-  def access_resources(*model_names)
-    # Accepts a list of models as symbols, strings, or constants. Args may also
-    # be the hash key to an array of columns to accept for strong params.
+  def access_resources(*model_names, **model_hashes)
+    # Accepts a list of models as symbols, strings, or constants.
+    # Args may instead be a hash containing an array of columns
+    # to accept for strong params.
     #
     # Example:
     #   access_resources :users, :comments
     #   access_resource posts: [:title, :body, :tags]
     #
-    model_names.each do |model_name|
-      if model_name.is_a? Hash
-        resource = (model_name.keys.first).to_s.underscore.singularize
-        permitted_columns = (model_name.values.first).map(&:to_sym)
-      else
-        resource = model_name.to_s.downcase.singularize
-        permitted_columns = nil
-      end
+    model_names.each do |model|
+      define_access_methods_for resource_name(model), nil
+    end
 
-      define_access_methods_for resource, permitted_columns
+    model_hashes.each do |model, columns|
+      define_access_methods_for resource_name(model), columns
     end
   end
 
   alias_method :access_resource, :access_resources
+
+  def resource_name(name)
+    name.to_s.underscore.singularize
+  end
 
   def define_access_methods_for(resource, permitted_columns)
     # define getter for collection
@@ -48,5 +49,4 @@ module Resourceable
       end
     end
   end
-
 end
