@@ -14,7 +14,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    user.update(user_params)
+    user.save
     respond_with user
   end
 
@@ -23,7 +23,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    user.update(user_params)
+    user.save
     respond_with user
   end
 

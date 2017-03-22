@@ -1,35 +1,48 @@
 module Resourceable
   class Resource
-    attr_reader :name, :permitted_columns
+    attr_reader :resource, :permitted_columns
 
-    def initialize(model)
-      if model.is_a? Hash
-        @name = model.keys.first.to_s.downcase.singularize
-        @permitted_columns = model.values.first
-      else
-        @name = model.to_s.downcase.singularize
-        @permitted_columns = nil
-      end
+    def initialize(resource, permitted_columns, params)
+      @resource = resource
+      @klass = resource.camelize.constantize
+      @permitted_columns = permitted_columns
+      @params = params
     end
 
-    def to_s
-      name
+    def collection
+      klass.all
     end
 
-    def to_sym
-      name.to_sym
+    def load_resource
+      # could probably replace this with find or init by #identifier_hash
+      record = existing_resource || new_resource
+      record.assign_attributes resource_params if params[resource].present?
+      record
     end
 
-    def pluralize
-      name.pluralize
+    def resource_params
+      params.require(resource).permit(permitted_columns)
     end
 
-    def constantize
-      name.capitalize.constantize
+    private
+
+    attr_reader :klass, :params
+
+    def existing_resource
+      id = resource_id_from_params
+      id.present? ? klass.find(id) : nil
     end
 
-    def singleton?
-      false
+    def new_resource
+      klass.new
+    end
+
+    def resource_id_from_params
+      params["#{resource}_id"] || (params[:id] if eponymous_controller?) || nil
+    end
+
+    def eponymous_controller?
+      params[:controller] == resource.pluralize
     end
 
   end
