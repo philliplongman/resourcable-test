@@ -54,8 +54,10 @@ gem 'slim'
 gem 'annotate'
 gem 'responders'
 gem 'autoprefixer-rails'
+
 group :development, :test do
   gem 'pry'
+  gem 'pry-rails'
   gem 'pry-byebug'
   gem 'awesome_print'
   gem 'reek'

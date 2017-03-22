@@ -27,12 +27,12 @@ module Resourceable
     # find existing resource by id or return nil
     define_method "existing_#{resource}" do
       id = send "#{resource}_id_from_params"
-      id.present? ? resource.capitalize.constantize.find(id) : nil
+      id.present? ? (resource.capitalize.constantize).find(id) : nil
     end
 
     # new resource
     define_method "new_#{resource}" do
-      resource.capitalize.constantize.new
+      (resource.capitalize.constantize).new
     end
 
     # find id for resource from params
@@ -48,7 +48,7 @@ module Resourceable
     define_method resource.pluralize  do
       instance_variable_get("@#{resource.pluralize}") ||
         instance_variable_set(
-          "@#{resource.pluralize}", resource.capitalize.constantize.all
+          "@#{resource.pluralize}", (resource.capitalize.constantize).all
         )
     end
 
@@ -61,13 +61,12 @@ module Resourceable
     # find or create resource, then assign any params
     define_method "load_#{resource}" do
       record = send("existing_#{resource}") || send("new_#{resource}")
-      if params[resource].present?
-        record.assign_attributes send("#{resource}_params")
-      end
+      record.assign_attributes send("#{resource}_params") if params[resource].present?
       record
     end
 
-    # return strong params for resource
+    # define strong params for resource that don't allow anything,
+    # to be overwritten in the context of each controller
     define_method "#{resource}_params" do
       params.require(resource).permit()
     end
