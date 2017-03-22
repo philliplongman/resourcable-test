@@ -1,5 +1,5 @@
 module Resourceable
-  class Resource
+  class Accessor
     attr_reader :resource, :permitted_columns
 
     def initialize(resource, permitted_columns, params)

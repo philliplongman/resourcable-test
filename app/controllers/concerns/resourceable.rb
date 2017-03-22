@@ -1,4 +1,4 @@
-require 'resource'
+require 'accessor'
 
 module Resourceable
 
@@ -33,7 +33,7 @@ module Resourceable
       instance_variable_get("@#{resource.pluralize}") || begin
         # resource & permitted_columns will be hard-coded into method
         # params will get called when the the method is called
-        accessor = Resource.new(resource, permitted_columns, params)
+        accessor = Accessor.new(resource, permitted_columns, params)
         instance_variable_set "@#{resource.pluralize}", accessor.collection
       end
     end
@@ -43,7 +43,7 @@ module Resourceable
       instance_variable_get("@#{resource}") || begin
         # resource & permitted_columns will be hard-coded into method
         # params will get called when the the method is called
-        accessor = Resource.new(resource, permitted_columns, params)
+        accessor = Accessor.new(resource, permitted_columns, params)
         instance_variable_set "@#{resource}", accessor.load_resource
       end
     end
