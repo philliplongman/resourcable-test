@@ -14,8 +14,7 @@ module Resourceable
     end
 
     def load_resource
-      # could probably replace this with find or init by #identifier_hash
-      record = existing_resource || new_resource
+      record = klass.find_or_initialize_by(identifier)
       record.assign_attributes resource_params if params[resource].present?
       record
     end
@@ -28,13 +27,16 @@ module Resourceable
 
     attr_reader :klass, :params
 
-    def existing_resource
-      id = resource_id_from_params
-      id.present? ? klass.find(id) : nil
+    def identifier
+      if singleton?
+        {}
+      else
+        { id: resource_id_from_params }
+      end
     end
 
-    def new_resource
-      klass.new
+    def singleton?
+      false
     end
 
     def resource_id_from_params
