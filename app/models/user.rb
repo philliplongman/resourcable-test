@@ -9,8 +9,8 @@
 #
 
 class User < ApplicationRecord
-  has_one :profile
-  has_many :posts
+  has_one  :profile, dependent: :destroy
+  has_many :posts, dependent: :destroy
   has_many :comments, through: :posts
 
   validates :name, presence: true

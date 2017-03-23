@@ -16,7 +16,7 @@ module Resourceable
     def load_resource
       record = klass.find_or_initialize_by(identifier)
       if params[resource].present?
-        record.assign_attributes association_params
+        record.assign_attributes association_params unless singular?
         record.assign_attributes resource_params
       end
       record
@@ -27,15 +27,18 @@ module Resourceable
     attr_reader :klass, :params
 
     def identifier
-      if singleton?
-        {}
+      if singular?
+        key = klass.reflect_on_all_associations(:belongs_to).first.foreign_key
+        { key => params[key] }
       else
-        { id: resource_id_from_params }
+        { :id => resource_id_from_params }
       end
     end
 
-    def singleton?
-      false
+    def singular?
+      return false if resource_id_from_params
+      return false if eponymous_controller? && %w(new create).include?(params[:action])
+      true
     end
 
     def resource_id_from_params
