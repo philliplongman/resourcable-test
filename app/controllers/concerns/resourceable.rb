@@ -1,4 +1,4 @@
-require 'accessor'
+require 'resourceable/accessor'
 
 module Resourceable
 
