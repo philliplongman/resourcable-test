@@ -5,7 +5,7 @@ module Resourceable
     def initialize(resource, permitted_columns, params)
       @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
-      @permitted_columns = permitted_columns.map(&:to_sym)
+      @permitted_columns = permitted_columns
       @params = params
     end
 
@@ -15,12 +15,11 @@ module Resourceable
 
     def load_resource
       record = klass.find_or_initialize_by(identifier)
-      record.assign_attributes resource_params if params[resource].present?
+      if params[resource].present?
+        record.assign_attributes association_params
+        record.assign_attributes resource_params
+      end
       record
-    end
-
-    def resource_params
-      params.require(resource).permit(permitted_columns)
     end
 
     private
@@ -45,6 +44,18 @@ module Resourceable
 
     def eponymous_controller?
       params[:controller] == resource.pluralize
+    end
+
+    def association_params
+      params.require(resource).permit(associations)
+    end
+
+    def associations
+      klass.column_names.select { |column| column.end_with? "_id" }
+    end
+
+    def resource_params
+      params.require(resource).permit(permitted_columns)
     end
 
   end

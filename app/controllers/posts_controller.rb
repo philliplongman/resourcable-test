@@ -1,5 +1,5 @@
 class PostsController < ApplicationController
-  access_resources :posts, :users
+  access_resources :users, posts: [:title]
 
   def index
     posts
@@ -14,7 +14,7 @@ class PostsController < ApplicationController
   end
 
   def create
-    post.update(post_params)
+    post.save
     respond_with post, location: -> { user_post_path(user, post) }
   end
 
@@ -23,7 +23,7 @@ class PostsController < ApplicationController
   end
 
   def update
-    post.update(post_params)
+    post.save
     respond_with post, location: -> { user_post_path(user, post) }
   end
 

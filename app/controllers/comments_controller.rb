@@ -1,5 +1,5 @@
 class CommentsController < ApplicationController
-  access_resources :comments, :posts, :users
+  access_resources :posts, :users, comments: [:body]
 
   def index
     comments
@@ -14,7 +14,7 @@ class CommentsController < ApplicationController
   end
 
   def create
-    comment.update(comment_params)
+    comment.save
     respond_with comment, location: -> { user_post_comment_path(user, post, comment) }
   end
 
@@ -23,7 +23,7 @@ class CommentsController < ApplicationController
   end
 
   def update
-    comment.update(comment_params)
+    comment.save
     respond_with comment, location: -> { user_post_comment_path(user, post, comment) }
   end
 
