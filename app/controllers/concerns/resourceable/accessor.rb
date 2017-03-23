@@ -2,10 +2,11 @@ module Resourceable
   class Accessor
     attr_reader :resource, :permitted_columns
 
-    def initialize(resource, permitted_columns, params)
+    def initialize(resource, options, params)
       @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
-      @permitted_columns = permitted_columns
+      @key = options[:key]
+      @permitted_columns = options[:columns]
       @params = params
     end
 
@@ -16,7 +17,7 @@ module Resourceable
     def load_resource
       record = klass.find_or_initialize_by(identifier)
       if params[resource].present?
-        record.assign_attributes association_params unless singular?
+        record.assign_attributes association_params
         record.assign_attributes resource_params
       end
       record
@@ -24,21 +25,14 @@ module Resourceable
 
     private
 
-    attr_reader :klass, :params
+    attr_reader :key, :klass, :params
 
     def identifier
-      if singular?
-        key = klass.reflect_on_all_associations(:belongs_to).first.foreign_key
-        { key => params[key] }
+      if key
+        { key.to_sym => params[key] }
       else
-        { :id => resource_id_from_params }
+        { id: resource_id_from_params }
       end
-    end
-
-    def singular?
-      return false if resource_id_from_params
-      return false if eponymous_controller? && %w(new create).include?(params[:action])
-      true
     end
 
     def resource_id_from_params
@@ -54,7 +48,9 @@ module Resourceable
     end
 
     def associations
-      klass.column_names.select { |column| column.end_with? "_id" }
+      klass.column_names.select do |column|
+        column.to_sym != key && column.end_with?("_id")
+      end
     end
 
     def resource_params

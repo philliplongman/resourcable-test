@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  access_resource users: [:name]
+  access_resource :users, columns: [:name]
 
   def index
     users

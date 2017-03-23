@@ -1,5 +1,6 @@
 class PostsController < ApplicationController
-  access_resources :users, posts: [:title]
+  access_resources User
+  access_resources Post, columns: [:title]
 
   def index
     posts

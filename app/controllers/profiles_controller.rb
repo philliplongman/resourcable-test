@@ -1,5 +1,6 @@
 class ProfilesController < ApplicationController
-  access_resources :users, profiles: [:display_name]
+  access_resource :users
+  access_resource :profiles, key: :user_id, columns: [:display_name]
 
   def show
     profile
