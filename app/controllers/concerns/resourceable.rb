@@ -4,7 +4,7 @@ module Resourceable
 
   private
 
-  def access_resources(*models, **options)
+  def access_resource(*models, **options)
     # Accepts a list of ActiveRecord models as symbols, strings, or constants.
     # Can also accept a single model and the following keyword options:
     #
@@ -15,28 +15,23 @@ module Resourceable
     #   When the resource is loaded, data for these columns will be
     #   automatically assigned using strong params
     #
-    # Example:
+    # Examples:
     #   access_resources :users, :accounts
     #   access_resource Profile, key: :user_id, columns: [:username, :picture]
     #
-    models.map! { |e| resource_name(e) }
-
     define_access_methods_for models.pop, options if options.present?
 
     models.each { |model| define_access_methods_for model }
   end
 
-  alias_method :access_resource, :access_resources
-
-  def resource_name(name)
-    name.to_s.underscore.singularize
-  end
+  alias_method :access_resources, :access_resource
 
   def define_access_methods_for(resource, options={})
-    # resource & options will be hard-coded into methods
-    # params will get called when the the method is called
+    resource = resource.to_s.underscore.singularize
+    # resource & options will be hard-coded into the methods
+    # params will get called when the methods are called
 
-    # define getter for collection
+    # define memoized getter method for collection
     define_method resource.pluralize.to_sym do
       instance_variable_get("@#{resource.pluralize}") || begin
         accessor = Accessor.new(resource, options, params)
@@ -44,7 +39,7 @@ module Resourceable
       end
     end
 
-    # define getter for single records
+    # define memoized getter method for single records
     define_method resource.to_sym do
       instance_variable_get("@#{resource}") || begin
         accessor = Accessor.new(resource, options, params)
