@@ -28,11 +28,7 @@ module Resourceable
     attr_reader :key, :klass, :params
 
     def identifier
-      if key
-        { key.to_sym => params[key] }
-      else
-        { id: resource_id_from_params }
-      end
+      key ? { key => params[key] } : { id: resource_id_from_params }
     end
 
     def resource_id_from_params
@@ -48,8 +44,8 @@ module Resourceable
     end
 
     def associations
-      klass.column_names.select do |column|
-        column.to_sym != key && column.end_with?("_id")
+      (klass.column_names - [key.to_s]).select do |column|
+        column.end_with? "_id"
       end
     end
 
