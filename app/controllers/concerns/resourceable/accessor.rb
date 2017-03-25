@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Resourceable
   class Accessor
     attr_reader :resource, :permitted_columns
