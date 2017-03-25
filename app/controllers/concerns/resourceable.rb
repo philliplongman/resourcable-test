@@ -2,6 +2,13 @@
 
 require "resourceable/accessor"
 
+# Module to DRY controllers by encapsulating finding/initializing ActiveRecord
+# resources and assigning params data in a PORO. ::access_resource is called at
+# the top of the controller for every resource you want to access, and two
+# memo-ized getter methods are metaprogramatically defined for each. When
+# called, they generate an Accessor object that returns the correct object,
+# loaded with the params, but not saved.
+
 module Resourceable
 
   private
