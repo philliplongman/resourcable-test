@@ -8,7 +8,6 @@ require "resourceable/accessor"
 # memo-ized getter methods are metaprogramatically defined for each. When
 # called, they generate an Accessor object that returns the correct object,
 # loaded with the params, but not saved.
-
 module Resourceable
 
   private
@@ -33,7 +32,7 @@ module Resourceable
     models.each { |model| define_access_methods_for model }
   end
 
-  alias_method :access_resources, :access_resource
+  alias access_resources access_resource
 
   def define_access_methods_for(resource, options = {})
     resource = resource.to_s.underscore.singularize

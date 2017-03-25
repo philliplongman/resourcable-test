@@ -3,7 +3,6 @@
 module Resourceable
   # PORO to encapsulate the business logic of finding/initializing ActiveRecord
   # objects and loading data from params. Returned records are not saved.
-
   class Accessor
     attr_reader :resource, :permitted_columns
 
