@@ -19,12 +19,9 @@ module Resourceable
     end
 
     def load_resource
-      record = klass.find_or_initialize_by(identifier)
-      if params[resource].present?
-        record.assign_attributes association_params
-        record.assign_attributes resource_params
+      klass.find_or_initialize_by(identifier).tap do |obj|
+        obj.assign_attributes updated_attributes
       end
-      record
     end
 
     private
@@ -41,6 +38,10 @@ module Resourceable
 
     def eponymous_controller?
       params[:controller] == resource.pluralize
+    end
+
+    def updated_attributes
+      params[resource].present? ? association_params.merge(resource_params) : {}
     end
 
     def association_params
