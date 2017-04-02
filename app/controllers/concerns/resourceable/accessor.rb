@@ -19,14 +19,25 @@ module Resourceable
     end
 
     def load_resource
-      klass.find_or_initialize_by(identifier).tap do |obj|
-        obj.assign_attributes updated_attributes
-      end
+      resource = existing_resource || new_resource
+      resource.tap { |r| r.assign_attributes updated_attributes }
     end
 
     private
 
     attr_reader :key, :klass, :params
+
+    def existing_resource
+      klass.find_by identifier unless new_or_create_action?
+    end
+
+    def new_resource
+      klass.new identifier
+    end
+
+    def new_or_create_action?
+      %w(new create).include? params[:action]
+    end
 
     def identifier
       key ? { key => params[key] } : { id: resource_id_from_params }
