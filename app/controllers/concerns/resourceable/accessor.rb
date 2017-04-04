@@ -52,21 +52,15 @@ module Resourceable
     end
 
     def updated_attributes
-      params[resource].present? ? association_params.merge(resource_params) : {}
-    end
-
-    def association_params
-      params.require(resource).permit(associations)
-    end
-
-    def associations
-      (klass.column_names - [key.to_s]).select do |column|
-        column.end_with? "_id"
-      end
+      params[resource].present? ? resource_params : {}
     end
 
     def resource_params
-      params.require(resource).permit(permitted_columns)
+      params.require(resource).permit(associations, permitted_columns)
+    end
+
+    def associations
+      (klass.column_names - [key.to_s]).select { |col| col.end_with? "_id" }
     end
 
   end
