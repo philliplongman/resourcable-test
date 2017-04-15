@@ -27,7 +27,7 @@ module Resourceable
     #   access_resources :users, :accounts
     #   access_resource Profile, key: :user_id, columns: [:username, :picture]
     #
-    define_access_methods_for models.pop, options if options.present?
+    define_access_methods_for(models.pop, options) if options.present?
 
     models.each { |model| define_access_methods_for model }
   end
@@ -42,7 +42,7 @@ module Resourceable
   end
 
   def define_memoized_getter_for_collection(resource, options = {})
-    # resource & options will be hard-coded into the method
+    # resource & options values will be hard-coded into the method
     # params will get called when the methods is called
     define_method resource.pluralize.to_sym do
       instance_variable_get("@#{resource.pluralize}") || begin
@@ -53,7 +53,7 @@ module Resourceable
   end
 
   def define_memoized_getter_for_single_record(resource, options = {})
-    # resource & options will be hard-coded into the method
+    # resource & options values will be hard-coded into the method
     # params will get called when the methods is called
     define_method resource.to_sym do
       instance_variable_get("@#{resource}") || begin

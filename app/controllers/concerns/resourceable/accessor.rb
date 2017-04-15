@@ -19,8 +19,8 @@ module Resourceable
     end
 
     def load_resource
-      resource = existing_resource || new_resource
-      resource.tap { |r| r.assign_attributes updated_attributes }
+      loaded = existing_resource || new_resource
+      loaded.tap { |r| r.assign_attributes updated_attributes }
     end
 
     private
@@ -36,7 +36,7 @@ module Resourceable
     end
 
     def new_or_create_action?
-      %w(new create).include? params[:action]
+      params[:action].in? %w(new create)
     end
 
     def identifier
