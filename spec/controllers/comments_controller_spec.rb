@@ -55,7 +55,7 @@ RSpec.describe CommentsController, type: :controller do
   describe "GET #new" do
     it "assigns a new comment as @comment" do
       get :new, params: {user_id: user.to_param, post_id: blog.to_param}, session: valid_session
-      expect(assigns(:comment)).to be_a_new(Comment)
+      expect(assigns(:comment)).to be_a_new(CommentDecorator)
     end
   end
 
@@ -77,7 +77,7 @@ RSpec.describe CommentsController, type: :controller do
 
       it "assigns a newly created comment as @comment" do
         post :create, params: {user_id: user.to_param, post_id: blog.to_param, comment: valid_attributes}, session: valid_session
-        expect(assigns(:comment)).to be_a(Comment)
+        expect(assigns(:comment)).to be_a(CommentDecorator)
         expect(assigns(:comment)).to be_persisted
       end
 
@@ -90,7 +90,7 @@ RSpec.describe CommentsController, type: :controller do
     context "with invalid params" do
       it "assigns a newly created but unsaved comment as @comment" do
         post :create, params: {user_id: user.to_param, post_id: blog.to_param, comment: invalid_attributes}, session: valid_session
-        expect(assigns(:comment)).to be_a_new(Comment)
+        expect(assigns(:comment)).to be_a_new(CommentDecorator)
       end
 
       it "re-renders the 'new' template" do

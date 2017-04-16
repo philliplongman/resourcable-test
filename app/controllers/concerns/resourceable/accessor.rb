@@ -9,6 +9,7 @@ module Resourceable
     def initialize(resource, options, params)
       @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
+      @decorater = options[:decorater]
       @key = options[:key]
       @permitted_columns = options[:columns]
       @params = params
@@ -20,12 +21,13 @@ module Resourceable
 
     def load_resource
       loaded = existing_resource || new_resource
-      loaded.tap { |r| r.assign_attributes updated_attributes }
+      loaded.assign_attributes resource_params if params[resource].present?
+      decorater ? loaded.decorate : loaded
     end
 
     private
 
-    attr_reader :key, :klass, :params
+    attr_reader :decorater, :key, :klass, :params
 
     def existing_resource
       klass.find_by identifier unless new_or_create_action?
@@ -49,10 +51,6 @@ module Resourceable
 
     def eponymous_controller?
       params[:controller] == resource.pluralize
-    end
-
-    def updated_attributes
-      params[resource].present? ? resource_params : {}
     end
 
     def resource_params

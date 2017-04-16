@@ -55,6 +55,8 @@ gem 'annotate'
 gem 'responders'
 gem 'autoprefixer-rails'
 
+gem 'draper', '3.0.0.pre1'
+
 group :development, :test do
   gem 'pry'
   gem 'pry-rails'
