@@ -9,6 +9,7 @@ module Resourceable
     def initialize(resource, options, params)
       @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
+      @decorator = options[:decorator]
       @key = options[:key]
       @permitted_columns = options[:columns]
       @params = params
@@ -20,12 +21,12 @@ module Resourceable
 
     def load_resource
       loaded = existing_resource || new_resource
-      loaded.tap { |r| r.assign_attributes updated_attributes }
+      decorate(loaded).tap{ |r| r.assign_attributes updated_attributes }
     end
 
     private
 
-    attr_reader :key, :klass, :params
+    attr_reader :decorator, :key, :klass, :params
 
     def existing_resource
       klass.find_by identifier unless new_or_create_action?
@@ -61,6 +62,17 @@ module Resourceable
 
     def associations
       (klass.column_names - [key.to_s]).select { |col| col.end_with? "_id" }
+    end
+
+    def decorate(record)
+      case decorator
+      when nil, false
+        record
+      when true
+        record.decorate
+      else
+        decorator.to_s.camelize.constantize.new record
+      end
     end
 
   end

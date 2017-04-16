@@ -1,5 +1,6 @@
 class CommentsController < ApplicationController
-  access_resources :posts, :users, :comments, columns: [:body]
+  access_resources :posts, :users
+  access_resources :comments, decorator: true , columns: [:body]
 
   def index
     comments
