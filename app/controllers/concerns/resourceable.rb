@@ -16,16 +16,21 @@ module Resourceable
     # Accepts a list of ActiveRecord models as symbols, strings, or constants.
     # Can also accept a single model and the following keyword options:
     #
-    # key:
-    #   The db column to use for finding the resource in this context.
     # columns:
     #   The columns you want to permit access to in this context.
     #   When the resource is loaded, data for these columns will be
-    #   automatically assigned using strong params
+    #   automatically assigned using strong params.
+    # decorator:
+    #   For use with the Draper gem. When true, return a the class wrapped in
+    #   a decorator. A decorator class can be specified, instead, if named
+    #   differently than the resource.
+    # key:
+    #   The db column to use for finding the resource in this context.
     #
     # Examples:
     #   access_resources :users, :accounts
-    #   access_resource Profile, key: :user_id, columns: [:username, :picture]
+    #   access_resource Profile, key: :user_id, decorator: true,
+    #     columns: [:username, :picture]
     #
     define_access_methods_for(models.pop, options) if options.present?
 
