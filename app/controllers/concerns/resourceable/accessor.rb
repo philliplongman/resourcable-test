@@ -6,17 +6,18 @@ module Resourceable
   class Accessor
     attr_reader :resource, :permitted_columns
 
-    def initialize(resource, options, params)
+    def initialize(resource, options, params, &scope)
       @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
       @decorator = options[:decorator]
       @key = options[:key]
       @permitted_columns = options[:columns]
       @params = params
+      @scope = scope
     end
 
     def collection
-      klass.all
+      scope ? scope.yield(klass) : klass.all
     end
 
     def load_resource
@@ -26,10 +27,10 @@ module Resourceable
 
     private
 
-    attr_reader :decorator, :key, :klass, :params
+    attr_reader :decorator, :key, :klass, :params, :scope
 
     def existing_resource
-      klass.find_by identifier unless new_or_create_action?
+      klass.find_by(identifier) unless new_or_create_action?
     end
 
     def new_resource

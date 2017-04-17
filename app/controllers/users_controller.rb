@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   access_resource :users, columns: [:name]
 
   def index
-    users
+    users { |u| u.includes(:profile) }
   end
 
   def show
