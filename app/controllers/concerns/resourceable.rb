@@ -5,7 +5,7 @@ require "resourceable/accessor"
 # Module to DRY controllers by encapsulating finding/initializing ActiveRecord
 # resources and assigning params data in a PORO. ::access_resource is called at
 # the top of the controller for every resource you want to access, and two
-# memo-ized getter methods are metaprogramatically defined for each. When
+# memoized getter methods are metaprogramatically defined for each. When
 # called, they generate an Accessor object that returns the correct object,
 # loaded with the params, but not saved.
 module Resourceable
@@ -47,19 +47,37 @@ module Resourceable
   end
 
   def define_memoized_getter_for_collection(resource, options = {})
-    # resource & options values will be hard-coded into the method
-    # params will get called when the methods is called
-    define_method resource.pluralize.to_sym do
+    # Generate a memoized getter method to return a collection of ActiveRecord
+    # objects. The resource & options args will be hard-coded into the method.
+    #
+    # The generated method will accept a block for chaining ActiveRecord
+    # methods. params & block will be called when the method is called.
+    #
+    # example usage:
+    #   def index
+    #     users { |u| u.limit(5) }
+    #   end
+    #
+    define_method resource.pluralize.to_sym do |&scope|
       instance_variable_get("@#{resource.pluralize}") || begin
-        accessor = Accessor.new(resource, options, params)
+        accessor = Accessor.new(resource, options, params, &scope)
         instance_variable_set "@#{resource.pluralize}", accessor.collection
       end
     end
   end
 
   def define_memoized_getter_for_single_record(resource, options = {})
-    # resource & options values will be hard-coded into the method
-    # params will get called when the methods is called
+    # Generate a memoized getter method to return a single ActiveRecord
+    # object, loaded with data from params. The resource & options args 
+    # will be hard-coded into the method.
+    #
+    # params will be called when the method is called.
+    #
+    # example usage:
+    #   def show
+    #     user
+    #   end
+    #
     define_method resource.to_sym do
       instance_variable_get("@#{resource}") || begin
         accessor = Accessor.new(resource, options, params)
