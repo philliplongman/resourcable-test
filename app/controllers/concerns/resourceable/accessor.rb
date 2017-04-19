@@ -9,9 +9,11 @@ module Resourceable
     def initialize(resource, options, params, &scope)
       @resource = resource.to_s.underscore.singularize
       @klass = resource.camelize.constantize
+
       @decorator = options[:decorator]
       @key = options[:key]
       @permitted_columns = options[:columns]
+
       @params = params
       @scope = scope
     end
